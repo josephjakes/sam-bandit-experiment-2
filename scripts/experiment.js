@@ -51,13 +51,22 @@ var expConsent = {
     ];
 
 // Predetermined condition allocation based on participant ID
-const participantOrder = [
-    0, 0, 1, 0, 1, 0, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0, 0, 1, 0, 0, 1, 1, 0, 1,
-    0, 0, 1, 1, 1, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0,
-    1, 1, 0, 1, 1, 1, 0, 1, 1, 0, 0, 1, 1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 1, 1, 1,
-    1, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 1, 1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0,
-    1, 0, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1,
-];
+// const participantOrder = [
+//     0, 0, 1, 0, 1, 0, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0, 0, 1, 0, 0, 1, 1, 0, 1,
+//     0, 0, 1, 1, 1, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0,
+//     1, 1, 0, 1, 1, 1, 0, 1, 1, 0, 0, 1, 1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 1, 1, 1,
+//     1, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 1, 1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0,
+//     1, 0, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1,
+// ];
+
+const zeroes = Array(100).fill(0)
+const ones = Array(100).fill(1)
+const twos = Array(100).fill(2)
+const threes = Array(100).fill(3)
+
+const participantOrderUnshuffled = zeroes.concat(ones, twos, threes)
+const participantOrder = jsPsych.randomization.shuffle(participantOrderUnshuffled)
+
 
 // Start experiment--inputID triggers runExperiment
 inputID();
@@ -476,12 +485,16 @@ function runExperiment() {
 // Function to assign participants to conditions
 function assignCondition(participantID, participantOrder) {
     // 666 to test low variation, 6666 to test high variation, else assign by participantOrder
-    if (participantID == 666) {
-        condition = "low";
-    } else if (participantID == 6666) {
-        condition = "high";
+    const conditionNames = ["dynamic-risky-low", "dynamic-risky-high", "static-risky-low", "static-risky-high"];
+    if (participantID == 6661) {
+        condition = conditionNames[0]
+    } else if (participantID == 6662) {
+        condition = conditionNames[1]
+    if (participantID == 6663) {
+        condition = conditionNames[2]
+    } else if (participantID == 6664) {
+        condition = conditionNames[3]
     } else {
-        let conditionNames = ["low", "high"];
         let conditionIndex = participantOrder[participantID - 1];
         condition = conditionNames[conditionIndex];
     }
