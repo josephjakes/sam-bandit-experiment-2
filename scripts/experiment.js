@@ -301,7 +301,7 @@ function runExperiment() {
             leftStimulus = () => generateStimuli("left")
             rightStimulus = () => generateStimuli("right")
         } else {
-            console.log("error: unknown static/dynamic value, aborting experiment during generateBanditTask()")
+            throw new Error("error: unknown static/dynamic value, aborting experiment during generateBanditTask()")
         }
 
         if (condition.endsWithWith("risky-high")) {
@@ -309,7 +309,7 @@ function runExperiment() {
         } else if (condition.endsWith("risky-low")) {
 
         } else {
-            console.log("error: unknown risky-low/risky-high value, aborting experiment during generateBanditTask()")
+            throw new Error("error: unknown risky-low/risky-high value, aborting experiment during generateBanditTask()")
         }
 
         bandit = {
@@ -382,7 +382,7 @@ function runExperiment() {
             leftStimulus = () => generateStimuli("left")
             rightStimulus = () => generateStimuli("right")
         } else {
-            console.log("unknown static/dynamic value, aborting experiment")
+            throw new Error("unknown static/dynamic value, aborting experiment")
             return
         }
 
@@ -531,7 +531,7 @@ const getSafeValue = (condition) => {
         const outcome = randomGaussian(50, 1);
         return [outcome, outcome]
     } else {
-        console.log("error: unknown risky-low/risky-high, aborting experiment during getSafeValue()")
+        throw new Error("error: unknown risky-low/risky-high, aborting experiment during getSafeValue()")
     }
 }
 
@@ -554,7 +554,7 @@ const getRiskyValue = (condition) => {
         low_outcome = getTruncatedDistribution(40, 10, 10, 90)
         high_outcome = getTruncatedDistribution(80, 10, 10, 90)
     } else {
-        console.log("error: unknown risky-low/risky-high, returning zeros during getRiskyValue()")
+        throw new Error("error: unknown risky-low/risky-high, returning zeros during getRiskyValue()")
     }
     return [lowOutcome, highOutcome];
 }
@@ -577,7 +577,7 @@ function generateOutcomes(option) {
     } else if (condition.endsWith("risky-high")) {
         getValue("risky-high")
     } else {
-        console.log("error: unknown high/low, aborting experiment during generateOutcomes()")
+        throw new Error("error: unknown high/low, aborting experiment during generateOutcomes()")
     }
 }
 
