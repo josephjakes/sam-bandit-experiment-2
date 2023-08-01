@@ -304,7 +304,7 @@ function runExperiment() {
             throw new Error("error: unknown static/dynamic value, aborting experiment during generateBanditTask()")
         }
 
-        if (condition.endsWithWith("risky-high")) {
+        if (condition.endsWith("risky-high")) {
 
         } else if (condition.endsWith("risky-low")) {
 
