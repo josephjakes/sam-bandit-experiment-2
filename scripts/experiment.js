@@ -498,6 +498,29 @@ function assignCondition(participantID, participantOrder) {
     if (participantID == 6661) {
         condition = conditionNames[0]
     } else if (participantID == 6662) {
+        condition = conditionNames[1]
+    } else if (participantID == 6663) {
+        condition = conditionNames[2]
+    } else if (participantID == 6664) {
+        condition = conditionNames[3]
+    } else {
+        let conditionIndex = participantOrder[participantID - 1];
+        condition = conditionNames[conditionIndex];
+    }
+
+    return condition;
+}
+
+// Function to generate stimuli
+function generateStimuli(side) {
+    const shape = jsPsych.randomization.sampleWithoutReplacement(shapes, 1);
+
+    if (side == "left") {
+        return `images/stimuli/${shuffledColours[0]}_${shape}.jpg`;
+    } else if (side == "right") {
+        return `images/stimuli/${shuffledColours[1]}_${shape}.jpg`;
+    }
+}
 
 // Function that generates outcomes for the safe and risk options based on shuffledOptions as the option parameter
 function generateOutcomes(option) {
