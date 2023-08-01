@@ -386,7 +386,7 @@ function runExperiment() {
             return
         }
 
-        return EARS = {
+        return {
             type: "survey-likert",
             timeline: [
                 {
