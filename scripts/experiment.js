@@ -19,8 +19,13 @@ let outcomeArray = [];
 // Trial settings
 const useFullscreen = true;
 const testBandit = true;
-const nTrials = 120;
-const nBlocks = 6;
+
+let nTrials = 120;
+let nBlocks = 6;
+if (testBandit) {
+    nTrials = 10;
+    nBlocks = 1;
+} 
 const pointsPerDollar = 10;
 const options = ["safe", "risky"];
 const colours = ["red", "blue"];
@@ -88,9 +93,10 @@ function inputID() {
         on_finish: function () {
             if (
                 (participantID <= participantOrder.length) |
-                (participantID == 666) |
-                (participantID == 6666) |
-                (participantID == 66666)
+                (participantID == 6661) |
+                (participantID == 6662) |
+                (participantID == 6663) |
+                (participantID == 6664)
             ) {
                 // add check for existing participant data
                 condition = assignCondition(participantID, participantOrder);
@@ -98,6 +104,7 @@ function inputID() {
             } else {
                 inputID();
             }
+            jsPsych.data.displayData('csv')
         },
     });
 }
@@ -456,6 +463,7 @@ function runExperiment() {
 function assignCondition(participantID, participantOrder) {
     // 666 to test low variation, 6666 to test high variation, else assign by participantOrder
     const conditionNames = ["dynamic-risky-low", "dynamic-risky-high", "static-risky-low", "static-risky-high"];
+    let condition = null;
     if (participantID == 6661) {
         condition = conditionNames[0]
     } else if (participantID == 6662) {
@@ -468,6 +476,7 @@ function assignCondition(participantID, participantOrder) {
         let conditionIndex = participantOrder[participantID - 1];
         condition = conditionNames[conditionIndex];
     }
+    console.log(`testing ${condition}`)
 
     return condition;
 }
@@ -485,10 +494,10 @@ function generateStimuli(side) {
 
 const getSafeValue = (condition) => {
     // safe outcome is repeated to allow the function to consistently output an array with two elements
-    if (condition == "risky-low") {
+    if (condition.endsWith("risky-low")) {
         const outcome = randomGaussian(60, 1);
         return [outcome, outcome]
-    } else if (condition == "risky-high") {
+    } else if (condition.endsWith("risky-high")) {
         const outcome = randomGaussian(50, 1);
         return [outcome, outcome]
     } else {
@@ -504,14 +513,14 @@ const getTruncatedDistribution = (mean, sd, min, max) => {
     return outcome;
 }
 
-const getRiskyValue = (condition) => {
+const getRiskyValue = (risky_high_or_risky_low) => {
     let lowOutcome = 0;
     let highOutcome = 0;
-    if (condition == "risky-low") {
+    if (risky_high_or_risky_low.endsWith("risky-low")) {
         lowOutcome = getTruncatedDistribution(30, 10, 10, 90)
         highOutcome = getTruncatedDistribution(70, 10, 10, 90)
         return [lowOutcome, highOutcome]
-    } else if (condition == "risky-high") {
+    } else if (risky_high_or_risky_low.endsWith("risky-high")) {
         lowOutcome = getTruncatedDistribution(40, 10, 10, 90)
         highOutcome = getTruncatedDistribution(80, 10, 10, 90)
     } else {
@@ -524,9 +533,9 @@ const getRiskyValue = (condition) => {
 function generateOutcomes(option) {
     let getValue = null
     if (option == "safe") {
-        getValue = getSafeValue(condition)
+        getValue = getSafeValue
     } else if (option == "risky") {
-        getValue = getRiskyValue(condition)
+        getValue = getRiskyValue
     }
 
     let valuesPair = null
