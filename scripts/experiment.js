@@ -301,7 +301,7 @@ function runExperiment() {
             leftStimulus = () => generateStimuli("left")
             rightStimulus = () => generateStimuli("right")
         } else {
-            console.log("error: unknown static/dynamic value, aborting experiment during generateBanditTask()")
+            throw new Error("error: unknown static/dynamic value, aborting experiment during generateBanditTask()")
         }
 
         if (condition.endsWithWith("risky-high")) {
@@ -309,7 +309,7 @@ function runExperiment() {
         } else if (condition.endsWith("risky-low")) {
 
         } else {
-            console.log("error: unknown risky-low/risky-high value, aborting experiment during generateBanditTask()")
+            throw new Error("error: unknown risky-low/risky-high value, aborting experiment during generateBanditTask()")
         }
 
         bandit = {
@@ -382,7 +382,7 @@ function runExperiment() {
             leftStimulus = () => generateStimuli("left")
             rightStimulus = () => generateStimuli("right")
         } else {
-            console.log("unknown static/dynamic value, aborting experiment")
+            throw new Error("unknown static/dynamic value, aborting experiment")
             return
         }
 
@@ -522,33 +522,62 @@ function generateStimuli(side) {
     }
 }
 
+const getSafeValue = (condition) => {
+    // safe outcome is repeated to allow the function to consistently output an array with two elements
+    if (condition == "risky-low") {
+        const outcome = randomGaussian(60, 1);
+        return [outcome, outcome]
+    } else if (condition == "risky-high") {
+        const outcome = randomGaussian(50, 1);
+        return [outcome, outcome]
+    } else {
+        throw new Error("error: unknown risky-low/risky-high, aborting experiment during getSafeValue()")
+    }
+}
+
+const getTruncatedDistribution = (mean, sd, min, max) => {
+    let outcome = randomGaussian(mean, sd);
+    while (outcome < min || outcome > max) {
+        outcome = randomGaussian(mean, sd);
+    }
+    return outcome;
+}
+
+const getRiskyValue = (condition) => {
+    let lowOutcome = 0;
+    let highOutcome = 0;
+    if (condition == "risky-low") {
+        low_outcome = getTruncatedDistribution(30, 10, 10, 90)
+        high_outcome = getTruncatedDistribution(70, 10, 10, 90)
+        return [lowOutcome, highOutcome]
+    } else if (condition == "risky-high") {
+        low_outcome = getTruncatedDistribution(40, 10, 10, 90)
+        high_outcome = getTruncatedDistribution(80, 10, 10, 90)
+    } else {
+        throw new Error("error: unknown risky-low/risky-high, returning zeros during getRiskyValue()")
+    }
+    return [lowOutcome, highOutcome];
+}
+
 // Function that generates outcomes for the safe and risk options based on shuffledOptions as the option parameter
 function generateOutcomes(option) {
     let lowOutcome = 0;
     let highOutcome = 0;
 
-    if (condition.endsWith("risky-low")) {
-        
-    } else if (condition.endsWith("risky-high")) {
-        console.log("error: unknown high/low, aborting experiment during generateOutcomes()")
-    }
-     
 
+    let getValue = null
     if (option == "safe") {
-        // safe outcome is repeated to allow the function to consistently output an array with two elements
-        const outcome = randomGaussian(50, 1);
-        return [outcome, outcome];
+        getValue = getSafeValue
     } else if (option == "risky") {
-        while (
-            lowOutcome < 10 ||
-            highOutcome < 10 ||
-            lowOutcome > 90 ||
-            highOutcome > 90
-        ) {
-            lowOutcome = randomGaussian(30, 10);
-            highOutcome = randomGaussian(70, 10);
-        }
-        return [lowOutcome, highOutcome];
+        getValue = getRiskyValue
+    }
+
+    if (condition.endsWith("risky-low")) {
+        getValue("risky-low")
+    } else if (condition.endsWith("risky-high")) {
+        getValue("risky-high")
+    } else {
+        throw new Error("error: unknown high/low, aborting experiment during generateOutcomes()")
     }
 }
 
