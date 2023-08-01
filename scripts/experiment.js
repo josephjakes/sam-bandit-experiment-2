@@ -291,6 +291,46 @@ function runExperiment() {
 
     // Bandit task --------------------------------------------------------------------------------------------------------------------------
 
+    function generateBanditTask() {
+        let leftStimulus = null
+        let rightStimulus = null
+        if (condition.startsWith("static")) {
+            leftStimulus = leftStimulusGlobal
+            rightStimulus = rightStimulusGlobal
+        } else if (condition.startsWith("dynamic")) {
+            leftStimulus = () => generateStimuli("left")
+            rightStimulus = () => generateStimuli("right")
+        } else {
+            console.log("error: unknown static/dynamic value, aborting experiment during generateBanditTask()")
+        }
+
+        if (condition.endsWithWith("risky-high")) {
+
+        } else if (condition.endsWith("risky-low")) {
+
+        } else {
+            console.log("error: unknown risky-low/risky-high value, aborting experiment during generateBanditTask()")
+        }
+
+        bandit = {
+            timeline: [
+                {
+                    type: "bandit-task",
+                    stimulus1: leftStimulus,
+                    stimulus2: rightStimulus,
+                    outcomes1: () => generateOutcomes(shuffledOptions[0]),
+                    outcomes2: () => generateOutcomes(shuffledOptions[1]),
+                    probs1: [0.5, 0.5],
+                    probs2: [0.5, 0.5],
+                    feedbackDuration: 2000,
+                    preTrialInterval: 0,
+                },
+            ],
+            repetitions: nTrials / nBlocks,
+        };
+    }
+
+    bandit = generateBanditTask(condition)
     // Low stimulus variation condition
     if (condition == "low") {
         bandit = {
@@ -458,34 +498,18 @@ function assignCondition(participantID, participantOrder) {
     if (participantID == 6661) {
         condition = conditionNames[0]
     } else if (participantID == 6662) {
-        condition = conditionNames[1]
-    } else if (participantID == 6663) {
-        condition = conditionNames[2]
-    } else if (participantID == 6664) {
-        condition = conditionNames[3]
-    } else {
-        let conditionIndex = participantOrder[participantID - 1];
-        condition = conditionNames[conditionIndex];
-    }
-
-    return condition;
-}
-
-// Function to generate stimuli
-function generateStimuli(side) {
-    const shape = jsPsych.randomization.sampleWithoutReplacement(shapes, 1);
-
-    if (side == "left") {
-        return `images/stimuli/${shuffledColours[0]}_${shape}.jpg`;
-    } else if (side == "right") {
-        return `images/stimuli/${shuffledColours[1]}_${shape}.jpg`;
-    }
-}
 
 // Function that generates outcomes for the safe and risk options based on shuffledOptions as the option parameter
 function generateOutcomes(option) {
     let lowOutcome = 0;
     let highOutcome = 0;
+
+    if (condition.endsWith("risky-low")) {
+        
+    } else if (condition.endsWith("risky-high")) {
+        console.log("error: unknown high/low, aborting experiment during generateOutcomes()")
+    }
+     
 
     if (option == "safe") {
         // safe outcome is repeated to allow the function to consistently output an array with two elements
