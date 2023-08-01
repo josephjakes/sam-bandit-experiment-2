@@ -291,7 +291,7 @@ function runExperiment() {
 
     // Bandit task --------------------------------------------------------------------------------------------------------------------------
 
-    function generateBanditTask() {
+    function generateBanditTask(condition) {
         let leftStimulus = null
         let rightStimulus = null
         if (condition.startsWith("static")) {
@@ -312,7 +312,7 @@ function runExperiment() {
             throw new Error("error: unknown risky-low/risky-high value, aborting experiment during generateBanditTask()")
         }
 
-        bandit = {
+        return {
             timeline: [
                 {
                     type: "bandit-task",
@@ -331,45 +331,6 @@ function runExperiment() {
     }
 
     bandit = generateBanditTask(condition)
-    // Low stimulus variation condition
-    if (condition == "low") {
-        bandit = {
-            timeline: [
-                {
-                    type: "bandit-task",
-                    stimulus1: leftStimulusGlobal,
-                    stimulus2: rightStimulusGlobal,
-                    outcomes1: () => generateOutcomes(shuffledOptions[0]),
-                    outcomes2: () => generateOutcomes(shuffledOptions[1]),
-                    probs1: [0.5, 0.5],
-                    probs2: [0.5, 0.5],
-                    feedbackDuration: 2000,
-                    preTrialInterval: 0,
-                },
-            ],
-            repetitions: nTrials / nBlocks,
-        };
-    }
-
-    // High stimulus variation condition
-    if (condition == "high") {
-        bandit = {
-            timeline: [
-                {
-                    type: "bandit-task",
-                    stimulus1: () => generateStimuli("left"),
-                    stimulus2: () => generateStimuli("right"),
-                    outcomes1: () => generateOutcomes(shuffledOptions[0]),
-                    outcomes2: () => generateOutcomes(shuffledOptions[1]),
-                    probs1: [0.5, 0.5],
-                    probs2: [0.5, 0.5],
-                    feedbackDuration: 2000,
-                    preTrialInterval: 0,
-                },
-            ],
-            repetitions: nTrials / nBlocks,
-        };
-    }
 
     // EARS questionnaire --------------------------------------------------------------------------------------------------------------------------
     const generateEARS = (condition) => {
