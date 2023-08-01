@@ -18,7 +18,7 @@ let outcomeArray = [];
 
 // Trial settings
 const useFullscreen = true;
-const testBandit = false;
+const testBandit = true;
 const nTrials = 120;
 const nBlocks = 6;
 const pointsPerDollar = 10;
@@ -31,8 +31,8 @@ const shuffledOptions = jsPsych.randomization.sampleWithoutReplacement(options);
 const shuffledColours = jsPsych.randomization.sampleWithoutReplacement(colours);
 
 // Randomly sample stimuli used in low stimulus variability condition
-const leftStimulus = generateStimuli("left");
-const rightStimulus = generateStimuli("right");
+const leftStimulusGlobal = generateStimuli("left");
+const rightStimulusGlobal = generateStimuli("right");
 
 //exp consent
 
@@ -297,8 +297,8 @@ function runExperiment() {
             timeline: [
                 {
                     type: "bandit-task",
-                    stimulus1: leftStimulus,
-                    stimulus2: rightStimulus,
+                    stimulus1: leftStimulusGlobal,
+                    stimulus2: rightStimulusGlobal,
                     outcomes1: () => generateOutcomes(shuffledOptions[0]),
                     outcomes2: () => generateOutcomes(shuffledOptions[1]),
                     probs1: [0.5, 0.5],
@@ -332,39 +332,21 @@ function runExperiment() {
     }
 
     // EARS questionnaire --------------------------------------------------------------------------------------------------------------------------
+    const generateEARS = (condition) => {
+        let leftStimulus = null
+        let rightStimulus = null
+        if (condition.startsWith("static")) {
+            leftStimulus = leftStimulusGlobal
+            rightStimulus = rightStimulusGlobal
+        } else if (condition.startsWith("dynamic")) {
+            leftStimulus = () => generateStimuli("left")
+            rightStimulus = () => generateStimuli("right")
+        } else {
+            console.log("unknown static/dynamic value, aborting experiment")
+            return
+        }
 
-    function createEARSInstructions(side) {
-        return `
-      On the next screen, you will be asked to imagine that you are going to select the option presented on the ${side}-hand side of the screen.
-      You will be asked a number of questions about the <strong>outcome (number of points)</strong> that would occur if you were to select that option.
-    `;
-    }
-
-    const EARSPreamble = `<strong>Imagine you are going to select the option presented here.</strong> Please answer the following questions regarding the <strong>outcome (number of points)</strong> that would result from your choice:`;
-
-    const scale = ["Not at all", "", "", "", "", "", "Very much"];
-
-    const questions = [
-        "The outcome is something that has an element of randomness.",
-        "The outcome is determined by chance factors.",
-        "The outcome is knowable in advance, given enough information.",
-        "The outcome is something that well-informed people would agree on.",
-    ];
-
-    const questionOrder = jsPsych.randomization.shuffle([0, 1, 2, 3]);
-
-    let questionArray = [];
-
-    for (let q = 0; q < questions.length; q++) {
-        questionArray.push({
-            prompt: questions[questionOrder[q]],
-            labels: scale,
-            required: true,
-        });
-    }
-
-    if (condition == "low") {
-        EARS = {
+        return EARS = {
             type: "survey-likert",
             timeline: [
                 {
@@ -408,50 +390,37 @@ function runExperiment() {
         };
     }
 
-    if (condition == "high") {
-        EARS = {
-            type: "survey-likert",
-            timeline: [
-                {
-                    instructions: jsPsych.timelineVariable("instructions"),
-                    stimulus: jsPsych.timelineVariable("stimulus"),
-                    side: jsPsych.timelineVariable("side"),
-                    questions: questionArray,
-                    preamble: EARSPreamble,
-                    data: {
-                        stimulus: jsPsych.timelineVariable("stimulusName"),
-                        questions: questionOrder,
-                        risky: jsPsych.timelineVariable("risky"),
-                        colour: jsPsych.timelineVariable("colour"),
-                        side: jsPsych.timelineVariable("side"),
-                    },
-                },
-            ],
-            timeline_variables: [
-                {
-                    instructions: createEARSInstructions("left"),
-                    stimulus: () => generateStimuli("left"),
-                    stimulusName: leftStimulus
-                        .replace("images/stimuli/", "")
-                        .replace(".jpg", ""),
-                    side: "left",
-                    risky: shuffledOptions[0],
-                    colour: shuffledColours[0],
-                },
-                {
-                    instructions: createEARSInstructions("right"),
-                    stimulus: () => generateStimuli("right"),
-                    stimulusName: rightStimulus
-                        .replace("images/stimuli/", "")
-                        .replace(".jpg", ""),
-                    side: "right",
-                    risky: shuffledOptions[1],
-                    colour: shuffledColours[1],
-                },
-            ],
-            randomize_order: true,
-        };
+    function createEARSInstructions(side) {
+        return `
+      On the next screen, you will be asked to imagine that you are going to select the option presented on the ${side}-hand side of the screen.
+      You will be asked a number of questions about the <strong>outcome (number of points)</strong> that would occur if you were to select that option.
+    `;
     }
+
+    const EARSPreamble = `<strong>Imagine you are going to select the option presented here.</strong> Please answer the following questions regarding the <strong>outcome (number of points)</strong> that would result from your choice:`;
+
+    const scale = ["Not at all", "", "", "", "", "", "Very much"];
+
+    const questions = [
+        "The outcome is something that has an element of randomness.",
+        "The outcome is determined by chance factors.",
+        "The outcome is knowable in advance, given enough information.",
+        "The outcome is something that well-informed people would agree on.",
+    ];
+
+    const questionOrder = jsPsych.randomization.shuffle([0, 1, 2, 3]);
+
+    let questionArray = [];
+
+    for (let q = 0; q < questions.length; q++) {
+        questionArray.push({
+            prompt: questions[questionOrder[q]],
+            labels: scale,
+            required: true,
+        });
+    }
+
+    const EARS = generateEARS(condition)
 
     // Push to timeline -----------------------------------------------------------------------------------------------
     if (!testBandit) {
