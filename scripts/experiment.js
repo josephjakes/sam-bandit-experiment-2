@@ -490,7 +490,7 @@ function assignCondition(participantID, participantOrder) {
         condition = conditionNames[0]
     } else if (participantID == 6662) {
         condition = conditionNames[1]
-    if (participantID == 6663) {
+    } else if (participantID == 6663) {
         condition = conditionNames[2]
     } else if (participantID == 6664) {
         condition = conditionNames[3]
