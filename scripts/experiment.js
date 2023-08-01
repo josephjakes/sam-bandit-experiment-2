@@ -18,7 +18,7 @@ let outcomeArray = [];
 
 // Trial settings
 const useFullscreen = true;
-const testBandit = true;
+const testBandit = false;
 
 let nTrials = 120;
 let nBlocks = 6;
