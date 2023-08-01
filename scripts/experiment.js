@@ -379,11 +379,10 @@ function runExperiment() {
             leftStimulus = leftStimulusGlobal
             rightStimulus = rightStimulusGlobal
         } else if (condition.startsWith("dynamic")) {
-            leftStimulus = () => generateStimuli("left")
-            rightStimulus = () => generateStimuli("right")
+            leftStimulus = generateStimuli("left")
+            rightStimulus = generateStimuli("right")
         } else {
             throw new Error("unknown static/dynamic value, aborting experiment")
-            return
         }
 
         return {
@@ -447,6 +446,7 @@ function runExperiment() {
         "The outcome is knowable in advance, given enough information.",
         "The outcome is something that well-informed people would agree on.",
     ];
+
 
     const questionOrder = jsPsych.randomization.shuffle([0, 1, 2, 3]);
 
