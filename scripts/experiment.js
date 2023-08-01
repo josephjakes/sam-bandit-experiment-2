@@ -547,12 +547,12 @@ const getRiskyValue = (condition) => {
     let lowOutcome = 0;
     let highOutcome = 0;
     if (condition == "risky-low") {
-        low_outcome = getTruncatedDistribution(30, 10, 10, 90)
-        high_outcome = getTruncatedDistribution(70, 10, 10, 90)
+        lowOutcome = getTruncatedDistribution(30, 10, 10, 90)
+        highOutcome = getTruncatedDistribution(70, 10, 10, 90)
         return [lowOutcome, highOutcome]
     } else if (condition == "risky-high") {
-        low_outcome = getTruncatedDistribution(40, 10, 10, 90)
-        high_outcome = getTruncatedDistribution(80, 10, 10, 90)
+        lowOutcome = getTruncatedDistribution(40, 10, 10, 90)
+        highOutcome = getTruncatedDistribution(80, 10, 10, 90)
     } else {
         throw new Error("error: unknown risky-low/risky-high, returning zeros during getRiskyValue()")
     }
@@ -561,24 +561,22 @@ const getRiskyValue = (condition) => {
 
 // Function that generates outcomes for the safe and risk options based on shuffledOptions as the option parameter
 function generateOutcomes(option) {
-    let lowOutcome = 0;
-    let highOutcome = 0;
-
-
     let getValue = null
     if (option == "safe") {
-        getValue = getSafeValue
+        getValue = getSafeValue(condition)
     } else if (option == "risky") {
-        getValue = getRiskyValue
+        getValue = getRiskyValue(condition)
     }
 
+    let valuesPair = null
     if (condition.endsWith("risky-low")) {
-        getValue("risky-low")
+        valuesPair = getValue("risky-low")
     } else if (condition.endsWith("risky-high")) {
-        getValue("risky-high")
+        valuesPair = getValue("risky-high")
     } else {
         throw new Error("error: unknown high/low, aborting experiment during generateOutcomes()")
     }
+    return valuesPair
 }
 
 // Function that uses the Box-Muller transformation to generate a random sample from a gaussian distribution
