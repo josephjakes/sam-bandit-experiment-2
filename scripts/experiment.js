@@ -104,7 +104,6 @@ function inputID() {
             } else {
                 inputID();
             }
-            jsPsych.data.displayData('csv')
         },
     });
 }
@@ -292,7 +291,7 @@ function runExperiment() {
         `,
             ];
         },
-        show_clickable_nav: false,
+        show_clickable_nav: true,
         show_page_number: false,
     };
 
@@ -459,10 +458,11 @@ function runExperiment() {
     }
 
     for (let i = 0; i < nBlocks; i++) {
+        console.log(`block ${i}`)
         if (i != nBlocks - 1) {
             timeline.push(bandit, shortEARS);
         } else {
-            timeline.push(fullEARS);
+            timeline.push(bandit, fullEARS);
         }
     }
 
@@ -476,6 +476,15 @@ function runExperiment() {
     jsPsych.init({
         timeline: timeline,
         show_preload_progress_bar: false,
+        on_finish: function () {
+            jsPsych.data
+            .get()
+            .ignore(["internal_node_id"])
+            .localSave(
+                "csv",
+                ".myData.csv"
+                );
+        },
         on_trial_finish: saveTrialData,
     });
 }
