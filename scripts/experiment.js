@@ -340,7 +340,57 @@ function runExperiment() {
     bandit = generateBanditTask(condition)
 
     // EARS questionnaire --------------------------------------------------------------------------------------------------------------------------
-    const generateEARS = (condition) => {
+    function createEARSInstructions(side) {
+        return `
+      On the next screen, you will be asked to imagine that you are going to select the option presented on the ${side}-hand side of the screen.
+      You will be asked a number of questions about the <strong>outcome (number of points)</strong> that would occur if you were to select that option.
+    `;
+    }
+    
+    const generateEARS = (condition, fullEARS=null) => {
+        const EARSPreamble = `<strong>Imagine you are going to select the option presented here.</strong> Please answer the following questions regarding the <strong>outcome (number of points)</strong> that would result from your choice:`;
+    
+        const scale = ["Not at all", "", "", "", "", "", "Very much"];
+    
+        const questionsShortEars = [
+            "The outcome is something that has an element of randomness.",
+            "The outcome is determined by chance factors.",
+            "The outcome is knowable in advance, given enough information.",
+            "The outcome is something that well-informed people would agree on.",
+        ];
+    
+        const questionsFullEars = [
+            "The outcome is something that has an element of randomness.",
+            "The outcome is unpredictable.",
+            "The outcome is determined by chance factors.",
+            "The outcome could play out in different ways on similar occasions.",
+            "The outcome is, in principle, knowable in advance.",
+            "The outcome is something that has been determined in advance.",
+            "The outcome is knowable in advance, given enough information.",
+            "The outcome is something that well-informed people would agree on.",
+            "The outcome is something that could be better predicted by consulting an expert.",
+            "The outcome is something that becomes more predictable with additional knowledge or skills."
+          ];
+          
+        // const questionOrder = jsPsych.randomization.shuffle([0, 1, 2, 3]);
+    
+        let questionArray = [];
+        let questions = null
+        if (fullEARS) {
+            questions = questionsFullEars
+        } else {
+            questions = questionsShortEars
+        }
+
+        for (let q = 0; q < questions.length; q++) {
+            questionArray.push({
+                prompt: questions[q],
+                labels: scale,
+                required: true,
+            });
+        }
+
+
         let leftStimulus = null
         let rightStimulus = null
         if (condition.startsWith("static")) {
@@ -364,7 +414,6 @@ function runExperiment() {
                     preamble: EARSPreamble,
                     data: {
                         stimulus: jsPsych.timelineVariable("stimulusName"),
-                        questions: questionOrder,
                         risky: jsPsych.timelineVariable("risky"),
                         colour: jsPsych.timelineVariable("colour"),
                         side: jsPsych.timelineVariable("side"),
@@ -397,38 +446,8 @@ function runExperiment() {
         };
     }
 
-    function createEARSInstructions(side) {
-        return `
-      On the next screen, you will be asked to imagine that you are going to select the option presented on the ${side}-hand side of the screen.
-      You will be asked a number of questions about the <strong>outcome (number of points)</strong> that would occur if you were to select that option.
-    `;
-    }
-
-    const EARSPreamble = `<strong>Imagine you are going to select the option presented here.</strong> Please answer the following questions regarding the <strong>outcome (number of points)</strong> that would result from your choice:`;
-
-    const scale = ["Not at all", "", "", "", "", "", "Very much"];
-
-    const questions = [
-        "The outcome is something that has an element of randomness.",
-        "The outcome is determined by chance factors.",
-        "The outcome is knowable in advance, given enough information.",
-        "The outcome is something that well-informed people would agree on.",
-    ];
-
-
-    const questionOrder = jsPsych.randomization.shuffle([0, 1, 2, 3]);
-
-    let questionArray = [];
-
-    for (let q = 0; q < questions.length; q++) {
-        questionArray.push({
-            prompt: questions[questionOrder[q]],
-            labels: scale,
-            required: true,
-        });
-    }
-
-    const EARS = generateEARS(condition)
+    const shortEARS = generateEARS(condition)
+    const fullEARS = generateEARS(condition, true)
 
     // Push to timeline -----------------------------------------------------------------------------------------------
     if (!testBandit) {
@@ -440,7 +459,11 @@ function runExperiment() {
     }
 
     for (let i = 0; i < nBlocks; i++) {
-        timeline.push(bandit, EARS);
+        if (i != nBlocks - 1) {
+            timeline.push(bandit, shortEARS);
+        } else {
+            timeline.push(fullEARS);
+        }
     }
 
     timeline.push(comments, instructionsEnd);
